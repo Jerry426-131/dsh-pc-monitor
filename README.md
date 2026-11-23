@@ -6,6 +6,7 @@ Live **CPU / memory / GPU** gauges for the [DeepSeek Harness](https://github.com
 
 - One ring per metric, full circle = 100 %, number inside.
 - Refreshes every 2 s, pauses while the page is hidden.
+- Labels follow the DSH UI language: the memory ring reads 内存 in Chinese and **RAM** in English (CPU and GPU are the same everywhere). No hardcoded language — it switches live when you change DSH's language.
 - Colour follows load: blue → mint → amber → coral red, interpolated in sRGB.
 - Card background, border and labels use the DSH theme tokens, so it follows light/dark themes.
 - Mounted on `document.body` (fixed, anchored to the Settings row once a second) instead of inside the React sidebar tree — this is what keeps the pointer cursor from flickering when the sidebar re-renders.
@@ -74,6 +75,7 @@ MIT — see [LICENSE](LICENSE).
 在 DeepSeek Harness 的 Web 侧边栏底部（Settings 行上方）常驻一张三环监测卡片：CPU 占用、内存占用、GPU 占用。内圈是百分比，外圈是进度环，整圈 100 %；每 2 秒刷新，页面不可见时暂停。
 
 - 配色由占用率决定：蓝 → 薄荷绿 → 琥珀 → 珊瑚红（D 方案，色值取自 [LolColors](https://webdesignrankings.com/resources/lolcolors/) 的 `#47B8E0 / #5BD6C0 / #FFC952 / #FF7473 / #E8455F`），在 sRGB 里分段线性插值。
+- 标签跟随 DSH 界面语言：中文显示「内存」，英文显示 **RAM**（CPU、GPU 两种语言下一致）；切换 DSH 语言后立即生效，没有写死文案。
 - 卡片挂在 `document.body` 上并用主题 token 着色，随明暗主题切换；不插进 React 的侧边栏子树，所以鼠标指针不会在箭头和手形之间闪。
 - GPU 读不到时显示 `--`，不伪造数据。
 - **没有温度环**：Windows 上免提权只能拿 ACPI 热区值，实测是粗粒度机箱温度（64 % CPU 负载下 34.2 → 34.7 °C），不是核心温度；真实核心温度需要管理员权限的内核驱动（LibreHardwareMonitor / HWiNFO），故先不显示。

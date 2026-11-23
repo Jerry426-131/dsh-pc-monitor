@@ -31,6 +31,14 @@
     "performance"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jerry426-131/dsh-pc-monitor.git"
+  },
+  "homepage": "https://github.com/Jerry426-131/dsh-pc-monitor#readme",
+  "bugs": {
+    "url": "https://github.com/Jerry426-131/dsh-pc-monitor/issues"
+  },
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"

@@ -40,14 +40,21 @@ window.__ModuleLoader__.load({
     ]
     /** Card stays out of a collapsed sidebar instead of squeezing the dials. */
     const MIN_CARD_WIDTH = 168
+    /** A footer row is short; a flex spacer is not, and must not become the anchor. */
+    const MAX_ROW_HEIGHT = 160
     const CARD_GAP = 8
     const ANCHOR_MS = 1000
 
-    const DIALS = [
-      { key: 'cpu', label: 'CPU', hint: 'CPU 占用' },
-      { key: 'mem', label: '内存', hint: '内存占用' },
-      { key: 'gpu', label: 'GPU', hint: 'GPU 占用' },
-    ]
+    const DIALS = ['cpu', 'mem', 'gpu']
+    /**
+     * Labels follow the DSH UI language instead of a hardcoded one. CPU and GPU
+     * stay as-is everywhere; the memory dial is the only translated word, and
+     * English uses RAM because "memory" alone reads like storage or VRAM.
+     */
+    const STRINGS = {
+      zh: { mem: '内存', cpuHint: 'CPU 占用', memHint: '内存占用', gpuHint: 'GPU 占用', card: '电脑性能实时监测', title: '电脑性能实时监测 · 每 2 秒刷新' },
+      en: { mem: 'RAM', cpuHint: 'CPU usage', memHint: 'Memory usage', gpuHint: 'GPU usage', card: 'Live system performance', title: 'Live system performance · refreshes every 2 s' },
+    }
 
     const STYLE = `
 .dsh-pcmon {
@@ -183,19 +190,33 @@ window.__ModuleLoader__.load({
       document.head.appendChild(style)
     }
 
+    /**
+     * The DSH client exposes its active locale on ctx.locale; page `lang` and
+     * the browser list are only a fallback for hosts without that service.
+     */
+    function detectLang(ctx) {
+      let active = ''
+      try {
+        active = ctx?.locale?.getLocale?.()?.active || ''
+      } catch {
+        active = ''
+      }
+      if (!active) active = document.documentElement.lang || navigator.language || ''
+      return /^zh/i.test(active) ? 'zh' : 'en'
+    }
+
     function createCard() {
       const card = document.createElement('div')
       card.className = 'dsh-pcmon'
       card.setAttribute(CARD_ATTR, '')
       card.setAttribute('role', 'group')
-      card.setAttribute('aria-label', '电脑性能实时监测')
-      card.title = '电脑性能实时监测 · 每 2 秒刷新'
 
       const refs = {}
-      for (const dial of DIALS) {
+      const labels = {}
+      const hints = {}
+      for (const key of DIALS) {
         const gauge = document.createElement('div')
         gauge.className = 'dsh-pcmon-gauge'
-        gauge.title = dial.hint
 
         const dialBox = document.createElement('div')
         dialBox.className = 'dsh-pcmon-dial'
@@ -211,18 +232,32 @@ window.__ModuleLoader__.load({
 
         const label = document.createElement('span')
         label.className = 'dsh-pcmon-label'
-        label.textContent = dial.label
 
         gauge.appendChild(dialBox)
         gauge.appendChild(label)
         card.appendChild(gauge)
 
-        refs[dial.key] = {
+        labels[key] = label
+        hints[key] = gauge
+        refs[key] = {
           arc: dialBox.querySelector('.dsh-pcmon-arc'),
           value,
         }
       }
-      return { card, refs }
+      return { card, refs, labels, hints }
+    }
+
+    /** Applies localized text; runs again whenever the DSH locale changes. */
+    function localize(card, labels, hints, lang) {
+      const s = STRINGS[lang] || STRINGS.en
+      labels.cpu.textContent = 'CPU'
+      labels.mem.textContent = s.mem
+      labels.gpu.textContent = 'GPU'
+      hints.cpu.title = s.cpuHint
+      hints.mem.title = s.memHint
+      hints.gpu.title = s.gpuHint
+      card.setAttribute('aria-label', s.card)
+      card.title = s.title
     }
 
     /** Writes the dial text and keeps the length class in sync. */
@@ -263,10 +298,13 @@ window.__ModuleLoader__.load({
       const settings = foot.querySelector('[class*="settingsArea"]')
       // Other footer plugins (e.g. dsh-usage) stack cards above Settings. Anchor
       // to the topmost visible footer row so this card never covers them, while
-      // keeping the Settings row's own inset for left/width.
-      const rows = [...foot.children].filter(
-        (el) => el.getBoundingClientRect().height > 0 && !el.hasAttribute(CARD_ATTR),
-      )
+      // keeping the Settings row's own inset for left/width. Anything taller than
+      // a row is layout scaffolding (a flex spacer), not a footer item.
+      const rows = [...foot.children].filter((el) => {
+        if (el.hasAttribute(CARD_ATTR)) return false
+        const box = el.getBoundingClientRect()
+        return box.height > 0 && box.height <= MAX_ROW_HEIGHT && box.width >= MIN_CARD_WIDTH
+      })
       return { top: rows[0] || settings || foot, box: settings || foot }
     }
 
@@ -304,7 +342,7 @@ window.__ModuleLoader__.load({
       inject: [],
       apply(ctx) {
         const disposers = []
-        const { card, refs } = createCard()
+        const { card, refs, labels, hints } = createCard()
         let timer = null
         let anchorTimer = null
         let disposed = false
@@ -344,6 +382,15 @@ window.__ModuleLoader__.load({
           typeof value === 'number' && Number.isFinite(value) ? `${Math.round(value)}%` : '--'
 
         ensureStyle()
+        // Localize first so the card never flashes a placeholder language, then
+        // re-localize on every DSH locale switch (service is optional by design).
+        localize(card, labels, hints, detectLang(ctx))
+        try {
+          const unsubscribe = ctx?.locale?.subscribe?.(() => localize(card, labels, hints, detectLang(ctx)))
+          if (typeof unsubscribe === 'function') disposers.push(unsubscribe)
+        } catch {
+          // Older host without a locale face: the browser fallback still applies.
+        }
         document.body.appendChild(card)
         anchor(card)
         const onResize = () => anchor(card)

@@ -1,14 +1,12 @@
 # Draft entry for awesome-dsh-plugin.
-# Copy to data/plugins/<owner>__<repo>.yml in a fork of
-# https://github.com/awesome-dsh-plugin/awesome-dsh-plugin and open a PR.
-#
-# Replace <owner> with your GitHub username in BOTH places, then delete this
-# comment block. Keep the field order: url, name, category, description, icon.
+# Target path in the PR: data/plugins/Jerry426-131__dsh-pc-monitor.yml
+# Repo: https://github.com/awesome-dsh-plugin/awesome-dsh-plugin
+# Keep the field order: url, name, category, description, icon.
 
-url: https://github.com/<owner>/dsh-pc-monitor
-name: <owner>/dsh-pc-monitor
+url: https://github.com/Jerry426-131/dsh-pc-monitor
+name: Jerry426-131/dsh-pc-monitor
 category: usage
 description:
-  en: Live CPU, memory and GPU gauges pinned above the sidebar's Settings row, drawn as neon rings with the percentage inside.
-  zh: 在侧边栏 Settings 行上方常驻 CPU、内存、GPU 三环监测卡片，内圈显示百分比，外圈为霓虹进度环。
-icon: https://raw.githubusercontent.com/<owner>/dsh-pc-monitor/main/assets/icon-180.png
+  en: Live CPU, RAM and GPU gauges pinned above the sidebar's Settings row, drawn as neon rings with the percentage inside; labels follow the UI language.
+  zh: 在侧边栏 Settings 行上方常驻 CPU、内存、GPU 三环监测卡片，内圈显示百分比，外圈为霓虹进度环；标签跟随界面语言。
+icon: https://raw.githubusercontent.com/Jerry426-131/dsh-pc-monitor/main/assets/icon-180.png
