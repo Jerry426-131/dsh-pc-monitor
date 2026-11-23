@@ -1,0 +1,42 @@
+{
+  "name": "dsh-pc-monitor",
+  "version": "0.1.0",
+  "description": "Live CPU, memory and GPU gauges pinned to the DeepSeek Harness web UI sidebar, drawn as neon rings with an inner percentage.",
+  "icon": "icon.svg",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "perf.ps1",
+    "cordis.patch.yml",
+    "icon.svg",
+    "assets/icon-180.png",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "dsh-plugin",
+    "deepseek-harness",
+    "dsh",
+    "monitor",
+    "cpu",
+    "memory",
+    "gpu",
+    "performance"
+  ],
+  "license": "MIT",
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web"
+    }
+  }
+}

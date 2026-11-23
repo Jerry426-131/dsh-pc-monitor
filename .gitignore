@@ -1,0 +1,11 @@
+node_modules/
+pnpm-lock.yaml
+*.tgz
+
+# local scratch / design history kept out of the published repo
+_preview.html
+_preview.png
+_check.mjs
+卡片效果*.png
+设计预览*.png
+配色方案对比*.png

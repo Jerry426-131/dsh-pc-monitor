@@ -1,0 +1,8 @@
+# dsh-pc-monitor bundle patch: one row that mounts both halves.
+# Host half: the sampler (Node counters + the perf.ps1 child) and the
+#   GET /api/dsh-pc-monitor/snapshot route.
+# Browser half: client.js, which mounts the four gauge rings under the
+#   sidebar's Settings row.
+- insert:
+    - id: pc-monitor
+      name: dsh-pc-monitor
